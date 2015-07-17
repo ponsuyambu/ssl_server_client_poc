@@ -1,5 +1,6 @@
 package com.client;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -8,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
@@ -18,16 +21,32 @@ import javax.net.ssl.TrustManagerFactory;
 public class Client {
 	public static void main(String[] arstring) {
 		
-		String keyStoreName = "/Users/Pons/certficates/truststore.jks";
+		String keyStoreName = "D:\\git\\certificates\\sample.jks";
 		String pwd = "123456";
 		try {
+			String url = Client.class.getResource("sample.crt").getPath();
 			System.out.println("Client");
-//			System.setProperty("javax.net.ssl.keyStore", "/Users/Pons/certficates/sample_keystore.jks");
-//			System.setProperty("javax.net.ssl.keyStorePassword", "123456");
+			System.out.println(url);
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			InputStream is = Client.class.getResourceAsStream("sample.crt");
+			InputStream caInput = new BufferedInputStream(is);
+			Certificate ca;
+			try {
+				ca = cf.generateCertificate(caInput);
+				// System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
+			} finally {
+			}
+			
+			// Create a KeyStore containing our trusted CAs
+			String keyStoreType = KeyStore.getDefaultType();
+			KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+			keyStore.load(null, null);
+			keyStore.setCertificateEntry("ca", ca);
+			
 			
 			/* Create keystore */
-	        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-	        keyStore.load(new FileInputStream(keyStoreName), pwd.toCharArray());
+	        //KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+	        //keyStore.load(new FileInputStream(url), pwd.toCharArray());
 
 	        /* Get factory for the given keystore */
 	        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());

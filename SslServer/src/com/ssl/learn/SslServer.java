@@ -14,9 +14,14 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
 public class SslServer {
+	
+	public void startServer(){
+		
+	}
+	
 	public static void main(String[] arstring) {
 		try {
-			String keyStoreName = "/Users/Pons/certficates/sample_keystore.jks";
+			String keyStoreName = "D:\\git\\certificates\\sample.jks";
 			String pwd = "123456";
 			System.out.println("Starting server...");
 			// System.setProperty("javax.net.ssl.keyStore",

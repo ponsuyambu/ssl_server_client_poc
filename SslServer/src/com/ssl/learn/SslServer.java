@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyStore;
-import java.util.Arrays;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -14,33 +13,38 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
 public class SslServer {
-	
-	public void startServer(){
-		
+
+	String keyStorePath = "";
+	String keyStorePwd = "";
+
+	public SslServer() {
+		keyStorePath = getClass().getResource("sample.jks").getPath();
+		keyStorePwd = "123456";
 	}
-	
-	public static void main(String[] arstring) {
+
+	public void startServer(int port) {
 		try {
-			String keyStoreName = "D:\\git\\certificates\\sample.jks";
-			String pwd = "123456";
 			System.out.println("Starting server...");
-			// System.setProperty("javax.net.ssl.keyStore",
-			// "/Users/Pons/certficates/sample_keystore.jks");
-			//System.setProperty("javax.net.ssl.keyStorePassword", "123456");
 			SSLContext ctx = SSLContext.getInstance("SSL");
+			//Creates key store object
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(keyStoreName), pwd.toCharArray());
+			//Loads key store file into keystore object
+			keyStore.load(new FileInputStream(keyStorePath),
+					keyStorePwd.toCharArray());
+			
 			KeyManagerFactory kmf = KeyManagerFactory
 					.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			kmf.init(keyStore, pwd.toCharArray()); // That's the key's password,
-			ctx.init(kmf.getKeyManagers(), null, null);										// if different.
-			SSLServerSocketFactory sslserversocketfactory = ctx.getServerSocketFactory();
+			//Initializes the KeyManager  with the keystore
+			kmf.init(keyStore, keyStorePwd.toCharArray());
+			//Initializes SSL context the Key Manager
+			ctx.init(kmf.getKeyManagers(), null, null);
+			//Creates SSL server factory from the SSL context
+			SSLServerSocketFactory sslserversocketfactory = ctx
+					.getServerSocketFactory();
 			SSLServerSocket sslserversocket = (SSLServerSocket) sslserversocketfactory
-					.createServerSocket(9999);
-
+					.createServerSocket(port);
+			//Opens the socket
 			SSLSocket sslsocket = (SSLSocket) sslserversocket.accept();
-			System.out.println("Supported cipher suites - "
-					+ Arrays.toString(sslsocket.getEnabledCipherSuites()));
 			InputStream inputstream = sslsocket.getInputStream();
 			InputStreamReader inputstreamreader = new InputStreamReader(
 					inputstream);
@@ -55,5 +59,9 @@ public class SslServer {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
+	}
+
+	public static void main(String[] arstring) {
+		new SslServer().startServer(9999);
 	}
 }
